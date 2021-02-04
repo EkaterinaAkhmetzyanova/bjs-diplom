@@ -15,15 +15,86 @@ ApiConnector.current(response => {
     }
 })
 
-const ratesBoard = new ratesBoard();
+const ratesBoard = new RatesBoard();
 
-ApiConnector.getStocks(response => {
-    if (response.sucess) {
-        ratesBoard.clearTable();
-        ratesBoard.filltable(response.data);
-        setInterval(() => {
+function getStocks() {
+    ApiConnector.getStocks(response => {
+        if (response.success) {
             ratesBoard.clearTable();
-            ratesBoard.filltable(response.data);
-        }, 60000);
+            ratesBoard.fillTable(response.data);
+        }
+    })
+}
+getStocks();
+setInterval(getStocks, 60000);
+
+const moneyManager = new MoneyManager();
+
+moneyManager.addMoneyCallback = ({ currency, amount }) => {
+    ApiConnector.addMoney({ currency, amount }, response => {
+        if (response.success) {
+            ProfileWidget.showProfile(response.data);
+            moneyManager.setMessage(response.success, `Вы успешно пополнили баланс на ${amount} ${currency}`);
+        } else {
+            moneyManager.setMessage(response.success, response.error);
+        }
+    })
+}
+
+moneyManager.conversionMoneyCallback = ({ fromCurrency, targetCurrency, fromAmount }) => {
+    ApiConnector.convertMoney({ fromCurrency, targetCurrency, fromAmount }, response => {
+        if (response.success) {
+            ProfileWidget.showProfile(response.data);
+            moneyManager.setMessage(response.success, `Успешная конвертация ${fromAmount} ${fromCurrency} в ${targetCurrency}`);
+        } else {
+            moneyManager.setMessage(response.success, response.error);
+        }
+    })
+}
+
+moneyManager.sendMoneyCallback = ({ to, currency, amount }) => {
+    ApiConnector.transferMoney({ to, currency, amount }, response => {
+        if (response.success) {
+            ProfileWidget.showProfile(response.data);
+            moneyManager.setMessage(response.success, `Вы успешно перевели ${amount} ${currency} в адрес ${to}`);
+        } else {
+            moneyManager.setMessage(response.success, response.error);
+        }
+    })
+}
+
+const favoritesWidgets = new FavoriteWidgets();
+
+ApiConnector.getFavorites(response => {
+    if (response.success) {
+        favoritesWidgets.clearTable();
+        favoritesWidgets.fillTable(response.data);
+        moneyManager.updateUserList(response.data);
     }
 })
+
+favoritesWidgets.addUserCallback = ({ id, name }) => {
+    ApiConnector.addUserToFavorites({ id, name }, response => {
+        if (response.success) {
+            favoritesWidgets.clearTable();
+            favoritesWidgets.fillTable(response.data);
+            moneyManager.updateUserList(response.data);
+            moneyManager.setMessage(response.success, `Пользователь ${name} (${id}) успешно добавлен`);
+        } else {
+            moneyManager.setMessage(response.success, response.error);
+        }
+    })
+}
+
+favoritesWidgets.removeUserCallback = ({ id, name }) => {
+    ApiConnector.removeUserFromFavorites({ id, name }, response => {
+        if (response.success) {
+            favoritesWidgets.clearTable();
+            favoritesWidgets.fillTable(response.data);
+            moneyManager.updateUserList(response.data);
+            moneyManager.setMessage(response.success, `Пользователь ${name} (${id}) успешно удален из списка`);
+        } else {
+            moneyManager.setMessage(response.success, response.error);
+        }
+    })
+}
