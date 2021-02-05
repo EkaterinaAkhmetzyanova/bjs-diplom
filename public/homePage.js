@@ -56,29 +56,29 @@ moneyManager.sendMoneyCallback = ({ to, currency, amount }) => {
     ApiConnector.transferMoney({ to, currency, amount }, response => {
         if (response.success) {
             ProfileWidget.showProfile(response.data);
-            moneyManager.setMessage(response.success, `Вы успешно перевели ${amount} ${currency} в адрес ${to}`);
+            moneyManager.setMessage(response.success, `Вы успешно перевели ${amount} ${currency} пользователю ${to}`);
         } else {
             moneyManager.setMessage(response.success, response.error);
         }
     })
 }
 
-const favoritesWidgets = new FavoriteWidgets();
+const favoritesWidget = new FavoritesWidget();
 
 ApiConnector.getFavorites(response => {
     if (response.success) {
-        favoritesWidgets.clearTable();
-        favoritesWidgets.fillTable(response.data);
-        moneyManager.updateUserList(response.data);
+        favoritesWidget.clearTable();
+        favoritesWidget.fillTable(response.data);
+        moneyManager.updateUsersList(response.data);
     }
 })
 
-favoritesWidgets.addUserCallback = ({ id, name }) => {
+favoritesWidget.addUserCallback = ({ id, name }) => {
     ApiConnector.addUserToFavorites({ id, name }, response => {
         if (response.success) {
-            favoritesWidgets.clearTable();
-            favoritesWidgets.fillTable(response.data);
-            moneyManager.updateUserList(response.data);
+            favoritesWidget.clearTable();
+            favoritesWidget.fillTable(response.data);
+            moneyManager.updateUsersList(response.data);
             moneyManager.setMessage(response.success, `Пользователь ${name} (${id}) успешно добавлен`);
         } else {
             moneyManager.setMessage(response.success, response.error);
@@ -86,12 +86,12 @@ favoritesWidgets.addUserCallback = ({ id, name }) => {
     })
 }
 
-favoritesWidgets.removeUserCallback = ({ id, name }) => {
+favoritesWidget.removeUserCallback = ({ id, name }) => {
     ApiConnector.removeUserFromFavorites({ id, name }, response => {
         if (response.success) {
-            favoritesWidgets.clearTable();
-            favoritesWidgets.fillTable(response.data);
-            moneyManager.updateUserList(response.data);
+            favoritesWidget.clearTable();
+            favoritesWidget.fillTable(response.data);
+            moneyManager.updateUsersList(response.data);
             moneyManager.setMessage(response.success, `Пользователь ${name} (${id}) успешно удален из списка`);
         } else {
             moneyManager.setMessage(response.success, response.error);
