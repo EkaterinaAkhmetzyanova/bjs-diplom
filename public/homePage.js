@@ -86,8 +86,8 @@ favoritesWidget.addUserCallback = ({ id, name }) => {
     })
 }
 
-favoritesWidget.removeUserCallback = ({ id, name }) => {
-    ApiConnector.removeUserFromFavorites({ id, name }, response => {
+favoritesWidget.removeUserCallback = (data) => {
+    ApiConnector.removeUserFromFavorites(data, response => {
         if (response.success) {
             favoritesWidget.clearTable();
             favoritesWidget.fillTable(response.data);
